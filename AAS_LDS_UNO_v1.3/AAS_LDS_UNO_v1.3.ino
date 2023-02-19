@@ -23,6 +23,7 @@ Adafruit_SSD1306 display(128, 64, 11, 12, 9, 10, 11); //(SCREEN_WIDTH, SCREEN_HE
 #define sleepPin 4 //D4, Connector Pin 3, 04L Pin 10 Sleep
 #define Tx_Pin  5  //D5, Connector Pin 4, 04L Pin 7 Rx
 #define Rx_Pin  6  //D6, Connector Pin 5, 04L Pin 9 Tx
+#define Fan_Pin  13 //define fan pin.  13 is built in LED, pin 1 doesnt work due to conflict with serial control
 SoftwareSerial mySerial(Rx_Pin, Tx_Pin); // RX, TX               // Declare serial
 
 // Initialize global variables
@@ -45,9 +46,8 @@ void setup()
   // Start Wire I2C based interface
   Wire.begin();
 
-  //set output pin for fan control (LB)
-  pinMode(DD1, OUTPUT);
-  digitalWrite(DD1, LOW);
+  pinMode(Fan_Pin, OUTPUT); //set up fan control pin
+  digitalWrite(Fan_Pin, LOW); 
 
   pinMode(4, OUTPUT);
   digitalWrite(4, HIGH); //puts SM-UART-04L unit active (HIGH), sleep (LOW)
@@ -69,7 +69,7 @@ void setup()
   delay(1500);
 
   display_prepare();
-  display.setCursor(15, 40);
+  display.setCursor(18, 40);
   display.print(F("Version 3.0"));
   display.setTextSize(2);
   display.setCursor(0, 20);
@@ -284,7 +284,7 @@ void displayReading() {
       display.setCursor(34, 20);
       display.print(PM25value);
       display.setTextSize(1);
-      display.setCursor(90, 27);
+      display.setCursor(66, 27);
       display.print(F("ug/m3"));
     } if ((Connected & B00000010) == 2 ) {
       display.setCursor(0, 40);
@@ -294,7 +294,7 @@ void displayReading() {
       display.setCursor(32, 40);
       display.print(temperature*9/5+32,1);
       display.setTextSize(1);
-      display.setCursor(90, 40);
+      display.setCursor(66, 40);
       display.print(F("F"));
     } if ((Connected & B00000100) == 4 ) {
       display.setCursor(0, 53);
@@ -304,8 +304,22 @@ void displayReading() {
       display.setCursor(52, 53);
       display.print(humidity,0);
       display.setTextSize(1);
-      display.setCursor(90, 53);
+      display.setCursor(66, 53);
       display.print(F("%"));
+    } if (fanon == 0 ) {
+      display.setCursor(100, 35);
+      display.setTextSize(1);
+      display.print(F("Fan"));
+      display.setCursor(90, 47);
+      display.setTextSize(2);
+      display.print(F("OFF"));
+    } if (fanon == 1 ) {
+      display.setCursor(100, 35);
+      display.setTextSize(1);
+      display.print(F("Fan"));
+      display.setCursor(90, 47);
+      display.setTextSize(2);
+      display.print(F("ON"));
     }
   } else {
     display.setCursor(3, 12); display.print(F("PM1.0"));
@@ -333,14 +347,16 @@ void controller_loop()
    * This is dumb - here "delay" stops the unit from processing.
    * Fine for test purposes.
    */
+  //Wire.begin();
+  //pinMode(DD1, OUTPUT); //set up fan control pin
   if (fanon == 0) {
     if (CO2ppmValue > 800 || PM25value > 10) {
-      digitalWrite(DD1, HIGH); // 5V
-      fanon=1;
+      digitalWrite(Fan_Pin, HIGH); // 5V
+      fanon = 1;
     }
   } else {
-    if (CO2ppmValue < 600 && PM25value < 3) {
-      digitalWrite(DD1, LOW); // 0V
+    if (CO2ppmValue < 600 && PM25value < 3 && CO2ppmValue > 200) {
+      digitalWrite(Fan_Pin, LOW); // 0V
       fanon = 0;
     }
   }
