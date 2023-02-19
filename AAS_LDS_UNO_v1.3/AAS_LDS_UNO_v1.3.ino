@@ -253,51 +253,51 @@ void displayReading() {
     F = 1 Fan speed compensation start
     G = 1 Fan speed alarm
   */
-  display.setCursor(15, 0);  display.print(F("Amphenol Sensors"));
-  display.setCursor(13, 55); display.print(F("AQ Evaluation Kit"));
+  //display.setCursor(15, 0);  display.print(F("Amphenol Sensors"));
+  //display.setCursor(13, 55); display.print(F("AQ Evaluation Kit"));
 
 
   if ((Connected & B00000001) == 1 || (Connected & B00000010) == 2 ) {
     if ((Connected & B00000001) == 1 ) {
       display.setCursor(0, 7);
       display.setTextSize(1);
-      display.print("CO2");
+      display.print(F("CO2"));
       display.setTextSize(2);
       display.setCursor(34, 0);
       display.print(CO2ppmValue);
       display.setTextSize(1);
       display.setCursor(90, 7);
-      display.print("ppm");
+      display.print(F("ppm"));
     } if ((Connected & B00001000) == 8 ) {
       display.setCursor(0, 27);
       display.setTextSize(1);
-      display.print("PM2.5");
+      display.print(F("PM2.5"));
       display.setTextSize(2);
       display.setCursor(34, 20);
       display.print(PM25value);
       display.setTextSize(1);
       display.setCursor(90, 27);
-      display.print("ug/m3");
+      display.print(F("ug/m3"));
     } if ((Connected & B00000010) == 2 ) {
       display.setCursor(0, 40);
       display.setTextSize(1);
-      display.print("Temp");
+      display.print(F("Temp"));
       display.setTextSize(1);
       display.setCursor(32, 40);
-      display.print(temperature);
+      display.print(temperature,1);
       display.setTextSize(1);
       display.setCursor(90, 40);
-      display.print("C");
+      display.print(F("C"));
     } if ((Connected & B00000100) == 4 ) {
       display.setCursor(0, 53);
       display.setTextSize(1);
-      display.print("Humidity");
+      display.print(F("Humidity"));
       display.setTextSize(1);
       display.setCursor(52, 53);
-      display.print(humidity);
+      display.print(humidity,0);
       display.setTextSize(1);
       display.setCursor(90, 53);
-      display.print("%");
+      display.print(F("%"));
     }
   } else {
     display.setCursor(3, 12); display.print(F("PM1.0"));
