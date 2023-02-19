@@ -267,25 +267,37 @@ void displayReading() {
       display.print(CO2ppmValue);
       display.setTextSize(1);
       display.setCursor(90, 7);
-      display.print("ppm");}
+      display.print("ppm");
     } if ((Connected & B00001000) == 8 ) {
       display.setCursor(0, 27);
       display.setTextSize(1);
       display.print("PM2.5");
       display.setTextSize(2);
       display.setCursor(34, 20);
-      display.print(PM2_Value);
+      display.print(PM25value);
       display.setTextSize(1);
       display.setCursor(90, 27);
       display.print("ug/m3");
     } if ((Connected & B00000010) == 2 ) {
-      display.setCursor(3, 32); display.print(F("Temp"));
-      display.setCursor(60, 32); display.print(temperature, 1);  //Temperature Value
-      display.setCursor(90, 32); display.write(9); display.print("C");
+      display.setCursor(0, 40);
+      display.setTextSize(1);
+      display.print("Temp");
+      display.setTextSize(1);
+      display.setCursor(32, 40);
+      display.print(temperature);
+      display.setTextSize(1);
+      display.setCursor(90, 40);
+      display.print("C");
     } if ((Connected & B00000100) == 4 ) {
-      display.setCursor(3, 42); display.print(F("Humidity"));
-      display.setCursor(60, 42); display.print(humidity, 0);    //Humidity Value
-      display.setCursor(90, 42); display.print("%rH");
+      display.setCursor(0, 53);
+      display.setTextSize(1);
+      display.print("Humidity");
+      display.setTextSize(1);
+      display.setCursor(52, 53);
+      display.print(humidity);
+      display.setTextSize(1);
+      display.setCursor(90, 53);
+      display.print("%");
     }
   } else {
     display.setCursor(3, 12); display.print(F("PM1.0"));
