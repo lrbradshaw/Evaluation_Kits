@@ -33,6 +33,7 @@ float humidity;
 int PM1value;
 int PM25value;
 int PM10value;
+byte fanon = 0; // keeping track of if the fan is on
 byte error;
 byte Connected = 0; // bit values define sensor presence
 //B1 -  T6700, B10 T9602 Temp, B100 T9602 Hum, B1000 Dust
@@ -43,6 +44,10 @@ void setup()
 
   // Start Wire I2C based interface
   Wire.begin();
+
+  //set output pin for fan control (LB)
+  pinMode(DD1, OUTPUT);
+  digitalWrite(DD1, LOW);
 
   pinMode(4, OUTPUT);
   digitalWrite(4, HIGH); //puts SM-UART-04L unit active (HIGH), sleep (LOW)
@@ -65,10 +70,10 @@ void setup()
 
   display_prepare();
   display.setCursor(15, 40);
-  display.print(F("Advanced Sensors"));
+  display.print(F("Version 3.0"));
   display.setTextSize(2);
-  display.setCursor(17, 20);
-  display.print(F("Amphenol"));
+  display.setCursor(0, 20);
+  display.print(F("AirManager"));
   display.display();
 
 
@@ -145,9 +150,12 @@ void loop()
       Serial.print(temperature, 1); Serial.print(", ");  // Temperature Value
     } if ((Connected & B00000100) == 4 ) {
       Serial.print(humidity, 0); Serial.print(", ");     // HumidityValue
-    }   Serial.println();
+    }   
+    Serial.print(fanon); Serial.print(", ");     // is fan on or off
+    Serial.println();
 
     displayReading();
+    controller_loop();
 
   }
 }
@@ -284,10 +292,10 @@ void displayReading() {
       display.print(F("Temp"));
       display.setTextSize(1);
       display.setCursor(32, 40);
-      display.print(temperature,1);
+      display.print(temperature*9/5+32,1);
       display.setTextSize(1);
       display.setCursor(90, 40);
-      display.print(F("C"));
+      display.print(F("F"));
     } if ((Connected & B00000100) == 4 ) {
       display.setCursor(0, 53);
       display.setTextSize(1);
@@ -313,6 +321,30 @@ void displayReading() {
     display.setCursor(90, 32); display.print("ug/m3");  //display µg/m³
   }
   display.display();
+}
+
+//_________________________________Fan control routine_________________________
+
+void controller_loop()
+{
+  /**
+   * DD1 == D1 = Digital Transmit pin. (set pinMode in setup())
+   *
+   * This is dumb - here "delay" stops the unit from processing.
+   * Fine for test purposes.
+   */
+  if (fanon == 0) {
+    if (CO2ppmValue > 800 || PM25value > 10) {
+      digitalWrite(DD1, HIGH); // 5V
+      fanon=1;
+    }
+  } else {
+    if (CO2ppmValue < 600 && PM25value < 3) {
+      digitalWrite(DD1, LOW); // 0V
+      fanon = 0;
+    }
+  }
+
 }
 
 /*
